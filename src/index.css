@@ -1,0 +1,125 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    box-sizing: border-box;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    -ms-text-size-adjust: 100%;
+  }
+
+  body {
+    @apply bg-slate-100 text-gray-900 select-none;
+    margin: 0;
+    padding: 0;
+    user-select: none;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+  }
+
+  button,
+  a,
+  select,
+  input[type="radio"],
+  input[type="checkbox"] {
+    @apply cursor-pointer outline-none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Cross-browser compatibility for flexbox */
+  .flex {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+  }
+
+  /* Cross-browser compatibility for grid */
+  .grid {
+    display: -ms-grid;
+    display: grid;
+  }
+}
+
+.ql-editor {
+  min-height: 200px;
+  font-family: inherit !important;
+  font-size: 0.875rem;
+  /* text-sm */
+  line-height: 1.25rem;
+  /* text-sm line-height */
+}
+
+.ql-container {
+  font-size: inherit !important;
+  font-family: inherit !important;
+}
+
+/* ReactQuill placeholder style */
+.ql-editor.ql-blank::before {
+  color: rgba(156, 163, 175, 1) !important;
+  /* gray-400 */
+  font-style: normal !important;
+  font-family: inherit !important;
+}
+
+/* Responsive image handling */
+img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Smooth scrolling for better UX */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+/* Focus styles - No highlight/outline on click */
+*:focus {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+*:active {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* Focus styles for accessibility - Only show when using keyboard */
+*:focus-visible {
+  outline: 2px solid #0ea5e9;
+  outline-offset: 2px;
+}
+
+/* Line clamp utility for cross-browser support */
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Recharts tooltip z-index fix - lower than chatbot */
+.recharts-tooltip-wrapper {
+  z-index: 999 !important;
+}
+
+.recharts-default-tooltip {
+  z-index: 999 !important;
+}
