@@ -38,8 +38,6 @@ Vite will start the dev server (see `vite.config.js` for the configured port/ope
 Defined in `package.json`:
 
 - **dev**: start Vite dev server
-- **build**: build for production
-- **preview**: preview the production build locally
 
 ## Key features
 
@@ -137,11 +135,6 @@ Things to try:
 - Run the terminal as Administrator
 - Ensure the project folder is not blocked by antivirus/Defender “Controlled folder access”
 - Delete and reinstall dependencies:
-
-```bash
-rm -rf node_modules package-lock.json
-npm install
-```
 
 If the issue persists, try moving the project to a simpler path (e.g. `C:\dev\edutech`) to avoid long path/permission edge cases.
 
