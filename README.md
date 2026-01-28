@@ -33,18 +33,6 @@ npm run dev
 
 Vite will start the dev server (see `vite.config.js` for the configured port/open behavior).
 
-### Build (production)
-
-```bash
-npm run build
-```
-
-### Preview (production build)
-
-```bash
-npm run preview
-```
-
 ## Scripts
 
 Defined in `package.json`:
