@@ -14,7 +14,22 @@ export default {
             600: '#0284c7',
             700: '#0369a1',
           }
-        }
+        },
+        keyframes: {
+          'slide-in': {
+            '0%': {
+              opacity: '0',
+              transform: 'translate(-50%, -60%)',
+            },
+            '100%': {
+              opacity: '1',
+              transform: 'translate(-50%, -50%)',
+            },
+          },
+        },
+        animation: {
+          'slide-in': 'slide-in 0.3s ease-out',
+        },
       },
     },
     plugins: [],

@@ -167,7 +167,10 @@ const SignUp = () => {
 
   return (
     <AuthBackground>
-      <Card className="w-full bg-white shadow-2xl">
+      <Card
+        className={`w-full ${success ? '' : 'shadow-2xl'}`}
+        noBackground={success}
+      >
         <div className="text-center mb-8">
           {/* Logo */}
           {!success && (

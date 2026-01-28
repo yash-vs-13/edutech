@@ -61,6 +61,17 @@ const CourseList = memo(({ onEdit, onCreate, onDelete, onEnroll, showEnroll = fa
     return Array.from(diffs).sort();
   }, [courses]);
 
+  const getTotalDurationMinutes = (course) => {
+    if (!course?.sections || !Array.isArray(course.sections)) return 0;
+    return course.sections.reduce((total, section) => {
+      if (!section.lessons || !Array.isArray(section.lessons)) return total;
+      return total + section.lessons.reduce((secTotal, lesson) => {
+        const minutes = lesson?.durationMinutes;
+        return secTotal + (typeof minutes === 'number' && !Number.isNaN(minutes) ? minutes : 0);
+      }, 0);
+    }, 0);
+  };
+
   // Filter and sort courses
   const filteredAndSortedCourses = useMemo(() => {
     if (!courses || !Array.isArray(courses)) return [];
@@ -328,9 +339,9 @@ const CourseList = memo(({ onEdit, onCreate, onDelete, onEnroll, showEnroll = fa
               <select
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
-                className={`px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent h-[42px] ${selectedCategory ? 'text-gray-900' : 'text-gray-400'}`}
+                className={`px-4 py-2 border border-gray-300 rounded-lg outline-none h-[42px] ${selectedCategory ? 'text-gray-900' : 'text-gray-400'}`}
               >
-                <option value="">All Categories</option>
+                <option value="" disabled hidden className="text-gray-400">All Categories</option>
                 {categories.map((cat) => (
                   <option key={cat} value={cat} className="text-gray-900">
                     {cat}
@@ -342,9 +353,9 @@ const CourseList = memo(({ onEdit, onCreate, onDelete, onEnroll, showEnroll = fa
               <select
                 value={selectedDifficulty}
                 onChange={(e) => setSelectedDifficulty(e.target.value)}
-                className={`px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent h-[42px] ${selectedDifficulty ? 'text-gray-900' : 'text-gray-400'}`}
+                className={`px-4 py-2 border border-gray-300 rounded-lg outline-none h-[42px] ${selectedDifficulty ? 'text-gray-900' : 'text-gray-400'}`}
               >
-                <option value="">All Levels</option>
+                <option value="" disabled hidden className="text-gray-400">All Levels</option>
                 {difficulties.map((diff) => (
                   <option key={diff} value={diff} className="text-gray-900">
                     {diff.charAt(0).toUpperCase() + diff.slice(1)}
@@ -356,9 +367,9 @@ const CourseList = memo(({ onEdit, onCreate, onDelete, onEnroll, showEnroll = fa
               <select
                 value={sortOrder}
                 onChange={(e) => setSortOrder(e.target.value)}
-                className={`px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent h-[42px] ${sortOrder ? 'text-gray-900' : 'text-gray-400'}`}
+                className={`px-4 py-2 border border-gray-300 rounded-lg outline-none h-[42px] ${sortOrder ? 'text-gray-900' : 'text-gray-400'}`}
               >
-                <option value="" disabled hidden>
+                <option value="" disabled hidden className="text-gray-400">
                   Sort By
                 </option>
                 <option value="a-z" className="text-gray-900">A-Z</option>
@@ -412,7 +423,7 @@ const CourseList = memo(({ onEdit, onCreate, onDelete, onEnroll, showEnroll = fa
             size="sm"
             onClick={handleBulkAction}
           >
-            Delete Course(s)
+            Delete
           </Button>
         </div>
       )}
@@ -484,7 +495,7 @@ const CourseList = memo(({ onEdit, onCreate, onDelete, onEnroll, showEnroll = fa
                 {paginatedCourses.map((course) => (
                   <CourseCard
                     key={course.id}
-                    course={course}
+                    course={{ ...course, totalDurationMinutes: getTotalDurationMinutes(course) }}
                     isSelected={selectedCourses.has(course.id)}
                     onSelect={handleSelectCourse}
                     showEnroll={showEnroll}
@@ -513,6 +524,9 @@ const CourseList = memo(({ onEdit, onCreate, onDelete, onEnroll, showEnroll = fa
                         Lessons
                       </th>
                       <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Duration
+                      </th>
+                      <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         ACTIONS
                       </th>
                     </tr>
@@ -536,7 +550,7 @@ const CourseList = memo(({ onEdit, onCreate, onDelete, onEnroll, showEnroll = fa
                               className="w-4 h-4 text-primary-600 rounded outline-none cursor-pointer"
                             />
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
+                          <td className="px-6 py-4">
                             <div className="flex items-center">
                               <div className="flex-shrink-0 h-10 w-10">
                                 <img
@@ -551,20 +565,34 @@ const CourseList = memo(({ onEdit, onCreate, onDelete, onEnroll, showEnroll = fa
                                 />
                               </div>
                               <div className="ml-4">
-                                <div className="text-sm font-medium text-gray-900">{course.title}</div>
+                                <div className="text-sm font-medium text-gray-900 break-words max-w-[20ch]">{course.title}</div>
                               </div>
                             </div>
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800 uppercase tracking-wider">
-                              {course.category || 'Uncategorized'}
+                        <td className="px-6 py-4 text-sm text-gray-500">
+                          <span className="px-2 inline-block text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800 break-words">
+                              {course.category ? course.category.charAt(0).toUpperCase() + course.category.slice(1).toLowerCase() : 'Uncategorized'}
                             </span>
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 uppercase tracking-wider">
-                            {course.difficulty || course.level || 'Beginner'}
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {(() => {
+                              const level = course.difficulty || course.level || 'Beginner';
+                              return level.charAt(0).toUpperCase() + level.slice(1).toLowerCase();
+                            })()}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 uppercase tracking-wider">
                             {course.sections?.reduce((acc, sec) => acc + (sec.lessons?.length || 0), 0) || 0}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            {(() => {
+                              const minutes = getTotalDurationMinutes(course);
+                              if (!minutes) return '—';
+                              const hours = Math.floor(minutes / 60);
+                              const remaining = minutes % 60;
+                              if (hours && remaining) return `${hours}h ${remaining}m`;
+                              if (hours) return `${hours}h`;
+                              return `${remaining}m`;
+                            })()}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-left text-sm font-medium" onClick={(e) => e.stopPropagation()}>
                             <div className="flex items-center justify-start gap-4">

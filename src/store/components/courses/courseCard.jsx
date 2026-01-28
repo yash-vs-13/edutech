@@ -89,7 +89,7 @@ const CourseCard = memo(({ course, onEdit, onDelete, onEnroll, isSelected, onSel
 
         <div className="flex-1">
           {/* Title */}
-          <h3 className="text-xl font-semibold mb-2 text-gray-900 line-clamp-2">
+          <h3 className="text-xl font-semibold mb-2 text-gray-900 break-words max-w-[30ch]">
             {course.title}
           </h3>
 
@@ -125,9 +125,16 @@ const CourseCard = memo(({ course, onEdit, onDelete, onEnroll, isSelected, onSel
           </div>
 
           {/* Additional Info */}
-          {course.duration && (
+          {typeof course.totalDurationMinutes === 'number' && course.totalDurationMinutes > 0 && (
             <p className="text-sm text-gray-600 mb-1">
-              Duration: {course.duration} hours
+              {(() => {
+                const minutes = course.totalDurationMinutes;
+                const hours = Math.floor(minutes / 60);
+                const remaining = minutes % 60;
+                if (hours && remaining) return `Total duration: ${hours}h ${remaining}m`;
+                if (hours) return `Total duration: ${hours}h`;
+                return `Total duration: ${remaining}m`;
+              })()}
             </p>
           )}
           {course.price !== undefined && (

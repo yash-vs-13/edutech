@@ -24,18 +24,18 @@ const CustomTooltip = ({ active, payload, coordinate }) => {
   if (active && payload && payload.length && payload[0] && payload[0].value > 0) {
     const categoryName = payload[0].payload?.name || '';
     const courseCount = payload[0].value || 0;
-    
+
     // Get the chart container to calculate absolute position
     const chartContainer = document.querySelector('[class*="recharts-wrapper"]');
     let left = coordinate?.x || 0;
     let top = coordinate?.y || 0;
-    
+
     if (chartContainer && coordinate) {
       const rect = chartContainer.getBoundingClientRect();
       left = rect.left + coordinate.x + 15; // Offset to the right of cursor
       top = rect.top + coordinate.y - 10; // Offset above cursor
     }
-    
+
     return (
       <div
         className="bg-white rounded-lg shadow-lg border-none p-3 z-[999]"
@@ -172,7 +172,7 @@ const Dashboard = memo(() => {
         {/* Left Column: Progress List */}
         <div className="lg:col-span-2 flex flex-col gap-6">
           <Card className="border-none shadow-sm overflow-hidden">
-            <div className="p-4 border-b border-slate-50 flex justify-between items-center bg-white">
+            <div className="border-b border-slate-50 flex justify-between items-center bg-white">
               <h2 className="font-bold text-slate-800">Recent Course Progress</h2>
               {enrolledCoursesWithProgress.length > 3 && (
                 <button
@@ -186,14 +186,14 @@ const Dashboard = memo(() => {
             <div className="p-0 bg-white">
               {enrolledCoursesWithProgress.length === 0 ? (
                 <div className="p-12 text-center">
-                  <p className="text-slate-500 text-sm">You haven't started any courses yet.</p>
+                  <p className="text-slate-500 text-sm">You haven't started any courses yet</p>
                 </div>
               ) : (
                 <div className="divide-y divide-slate-50">
                   {recentCoursesWithProgress.map(course => (
                     <div key={course.id} className="p-4 hover:bg-slate-50/50 transition-colors">
                       <div className="flex justify-between items-center mb-2">
-                        <Link to={`/courses/${course.id}`} className="font-semibold text-sm text-slate-800 hover:text-primary-600 truncate mr-4">
+                        <Link to={`/courses/${course.id}`} className="font-semibold text-sm text-slate-800 hover:text-primary-600 break-words max-w-[30ch] mr-4">
                           {course.title}
                         </Link>
                         <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${course.progress.isComplete ? 'bg-emerald-100 text-emerald-700' : 'bg-primary-100 text-primary-700'}`}>
@@ -234,28 +234,28 @@ const Dashboard = memo(() => {
               ) : (
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={categoryData.slice(0, 3)} layout="vertical" margin={{ left: 0, right: 20, top: 10, bottom: 10 }}>
-                  <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke="#f1f5f9" />
-                  <XAxis type="number" hide />
-                  <YAxis dataKey="name" type="category" width={100} tick={{ fontSize: 11, fill: '#64748b' }} axisLine={false} tickLine={false} />
-                  <Tooltip
-                    content={<CustomTooltip />}
-                    cursor={false}
-                    wrapperStyle={{ zIndex: 999 }}
-                    isAnimationActive={false}
-                    allowEscapeViewBox={{ x: true, y: true }}
-                    shared={false}
-                  />
-                  <Bar 
-                    dataKey="value" 
-                    fill="#3b82f6" 
-                    radius={[0, 4, 4, 0]} 
-                    barSize={20}
-                    isAnimationActive={false}
-                  >
-                    {categoryData.slice(0, 3).map((e, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
+                    <CartesianGrid strokeDasharray="3 3" horizontal={true} vertical={false} stroke="#f1f5f9" />
+                    <XAxis type="number" hide />
+                    <YAxis dataKey="name" type="category" width={100} tick={{ fontSize: 11, fill: '#64748b' }} axisLine={false} tickLine={false} />
+                    <Tooltip
+                      content={<CustomTooltip />}
+                      cursor={false}
+                      wrapperStyle={{ zIndex: 999 }}
+                      isAnimationActive={false}
+                      allowEscapeViewBox={{ x: true, y: true }}
+                      shared={false}
+                    />
+                    <Bar
+                      dataKey="value"
+                      fill="#3b82f6"
+                      radius={[0, 4, 4, 0]}
+                      barSize={20}
+                      isAnimationActive={false}
+                    >
+                      {categoryData.slice(0, 3).map((e, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
               )}
             </div>
           </Card>
@@ -280,15 +280,15 @@ const Dashboard = memo(() => {
                         cy="50%"
                         innerRadius={60}
                         outerRadius={80}
-                        paddingAngle={5}
+                        paddingAngle={0}
                         dataKey="value"
                       >
                         {levelData.map((entry, index) => (
                           <Cell key={`cell-${index}`} fill={LEVEL_COLORS[entry.name]} />
                         ))}
                       </Pie>
-                      <Tooltip 
-                        contentStyle={{ backgroundColor: 'white', borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)', zIndex: 999 }} 
+                      <Tooltip
+                        contentStyle={{ backgroundColor: 'white', borderRadius: '8px', border: 'none', boxShadow: '0 4px 6px -1px rgb(0 0 0 / 0.1)', zIndex: 999 }}
                         wrapperStyle={{ zIndex: 999 }}
                       />
                     </PieChart>

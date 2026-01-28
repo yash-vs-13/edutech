@@ -48,6 +48,17 @@ const CourseDetail = memo(() => {
     ? Math.round((completedLessons.length / totalLessons) * 100)
     : 0;
 
+  const totalDurationMinutes = useMemo(() => {
+    if (!course?.sections) return 0;
+    return course.sections.reduce((total, section) => {
+      if (!section.lessons) return total;
+      return total + section.lessons.reduce((secTotal, lesson) => {
+        const minutes = lesson?.durationMinutes;
+        return secTotal + (typeof minutes === 'number' && !Number.isNaN(minutes) ? minutes : 0);
+      }, 0);
+    }, 0);
+  }, [course]);
+
   const handleLessonToggle = (lessonId) => {
     if (!user || !enrollment) return;
 
@@ -179,10 +190,24 @@ const CourseDetail = memo(() => {
             </div>
 
             <div className="flex-1">
-              <h1 className="text-3xl font-bold mb-4">{course.title}</h1>
+              <h1 className="text-3xl font-bold mb-4 break-words max-w-[30ch]">{course.title}</h1>
               <div className="flex flex-wrap gap-4 text-sm text-gray-600">
                 {course.category && <span>Category: <strong>{course.category}</strong></span>}
                 {course.difficulty && <span>Level: <strong className="capitalize">{course.difficulty}</strong></span>}
+                {totalDurationMinutes > 0 && (
+                  <span>
+                    Total Duration:{' '}
+                    <strong>
+                      {(() => {
+                        const hours = Math.floor(totalDurationMinutes / 60);
+                        const remaining = totalDurationMinutes % 60;
+                        if (hours && remaining) return `${hours}h ${remaining}m`;
+                        if (hours) return `${hours}h`;
+                        return `${remaining}m`;
+                      })()}
+                    </strong>
+                  </span>
+                )}
               </div>
             </div>
           </div>
@@ -264,6 +289,19 @@ const CourseDetail = memo(() => {
                               <h4 className="font-medium text-gray-900">
                                 {lesson.title || `Lesson ${lessonIndex + 1}`}
                               </h4>
+                              {typeof lesson.durationMinutes === 'number' && lesson.durationMinutes > 0 && (
+                                <p className="text-xs text-gray-500 mt-0.5">
+                                  Duration:{' '}
+                                  {(() => {
+                                    const minutes = lesson.durationMinutes;
+                                    const hours = Math.floor(minutes / 60);
+                                    const remaining = minutes % 60;
+                                    if (hours && remaining) return `${hours}h ${remaining}m`;
+                                    if (hours) return `${hours}h`;
+                                    return `${remaining}m`;
+                                  })()}
+                                </p>
+                              )}
                               {lesson.content && (
                                 <div
                                   className="text-sm text-gray-600 mt-2 line-clamp-2"

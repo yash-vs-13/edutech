@@ -22,16 +22,12 @@ const CourseForm = memo(({ course, onSubmit, onCancel }) => {
   const [uploadedFile, setUploadedFile] = useState(null);
 
   const categories = [
-    'Web Development',
-    'Mobile Development',
-    'Data Science',
-    'Machine Learning',
-    'Design',
-    'Business',
-    'Marketing',
-    'Photography',
-    'Music',
-    'Other',
+    'Software Development',
+    'Business Analysis',
+    'Artificial Intelligence',
+    'Software Testing',
+    'Software Design',
+    'Project Management',
   ];
 
   const difficulties = [
@@ -241,6 +237,7 @@ const CourseForm = memo(({ course, onSubmit, onCancel }) => {
       content: '',
       description: '',
       file: null,
+      durationMinutes: null,
     };
     setFormData((prev) => ({
       ...prev,
@@ -507,7 +504,7 @@ const CourseForm = memo(({ course, onSubmit, onCancel }) => {
               Select a category
             </option>
             {categories.map((cat) => (
-              <option key={cat} value={cat}>
+              <option key={cat} value={cat} className="text-gray-900">
                 {cat}
               </option>
             ))}
@@ -699,6 +696,37 @@ const CourseForm = memo(({ course, onSubmit, onCancel }) => {
                               </Button>
                             </div>
                           )}
+                        </div>
+                        <div className="space-y-1">
+                          <label className="block text-xs font-medium text-gray-700">
+                            Duration (Optional)
+                          </label>
+                          <select
+                            value={lesson.durationMinutes ?? ''}
+                            onChange={(e) =>
+                              updateLesson(
+                                section.id,
+                                lesson.id,
+                                'durationMinutes',
+                                e.target.value ? parseInt(e.target.value, 10) : null
+                              )
+                            }
+                            className={`w-full px-3 py-2 border border-gray-300 rounded-lg outline-none ${lesson.durationMinutes ? 'text-gray-900' : 'text-gray-400'}`}
+                          >
+                            <option value="" disabled hidden>Select duration</option>
+                            <option value="5" className="text-gray-900">5 minutes</option>
+                            <option value="10" className="text-gray-900">10 minutes</option>
+                            <option value="15" className="text-gray-900">15 minutes</option>
+                            <option value="20" className="text-gray-900">20 minutes</option>
+                            <option value="30" className="text-gray-900">30 minutes</option>
+                            <option value="45" className="text-gray-900">45 minutes</option>
+                            <option value="60" className="text-gray-900">60 minutes</option>
+                            <option value="90" className="text-gray-900">90 minutes</option>
+                            <option value="120" className="text-gray-900">120 minutes</option>
+                          </select>
+                          <p className="text-xs text-gray-500">
+                            This helps learners understand how long this lesson will take.
+                          </p>
                         </div>
                         <div className="space-y-1">
                           <label className="block text-xs font-medium text-gray-700 mb-1">

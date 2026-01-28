@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { updateUserProfile, deleteAccount, clearError } from '../store/slices/authSlice';
+import { updateUserProfile, deleteAccount, clearError, signOut } from '../store/slices/authSlice';
 import Button from '../store/components/common/Button';
 import Card from '../store/components/common/Card';
 import Loading from '../store/components/common/Loading';
@@ -26,12 +26,11 @@ const Profile = () => {
     profileImage: '',
   });
 
-  const [deletePassword, setDeletePassword] = useState('');
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [deleteError, setDeleteError] = useState('');
 
   const [formErrors, setFormErrors] = useState({});
-  const [success, setSuccess] = useState('');
+  const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
+  const [saving, setSaving] = useState(false);
   const fileInputRef = useRef(null);
 
   useEffect(() => {
@@ -52,14 +51,14 @@ const Profile = () => {
     }
     return () => {
       dispatch(clearError());
-      setSuccess('');
+      setToast({ show: false, message: '', type: 'success' });
     };
   }, [user, dispatch]);
 
   const handleEditClick = () => {
     setIsEditMode(true);
     setFormErrors({});
-    setSuccess('');
+    setToast({ show: false, message: '', type: 'success' });
     dispatch(clearError());
   };
 
@@ -67,7 +66,7 @@ const Profile = () => {
     setIsEditMode(false);
     setFormData(originalFormData);
     setFormErrors({});
-    setSuccess('');
+    setToast({ show: false, message: '', type: 'success' });
     dispatch(clearError());
   };
 
@@ -110,7 +109,7 @@ const Profile = () => {
       }));
     }
     dispatch(clearError());
-    setSuccess('');
+    setToast({ show: false, message: '', type: 'success' });
   };
 
   const validateProfile = () => {
@@ -139,7 +138,10 @@ const Profile = () => {
   const handleProfileSubmit = async (e) => {
     e.preventDefault();
 
-    if (validateProfile()) {
+    if (!validateProfile()) return;
+
+    try {
+      setSaving(true);
       const result = await dispatch(updateUserProfile({
         firstName: formData.firstName.trim(),
         lastName: formData.lastName.trim(),
@@ -148,7 +150,7 @@ const Profile = () => {
       }));
 
       if (result && result.success) {
-        setSuccess('Profile updated successfully!');
+        setToast({ show: true, message: 'Profile updated successfully!', type: 'success' });
         setOriginalFormData({
           firstName: formData.firstName.trim(),
           lastName: formData.lastName.trim(),
@@ -156,45 +158,38 @@ const Profile = () => {
           profileImage: formData.profileImage || '',
         });
         setIsEditMode(false);
-        setTimeout(() => setSuccess(''), 3000);
+        setTimeout(() => setToast({ show: false, message: '', type: 'success' }), 3000);
       }
+    } finally {
+      setSaving(false);
     }
   };
 
 
 
   const handleDeleteAccount = async () => {
-    if (!deletePassword.trim()) {
-      setDeleteError('Please enter your password to confirm');
-      return;
-    }
-
-    setDeleteError('');
-    const result = await dispatch(deleteAccount(deletePassword));
+    const result = await dispatch(deleteAccount());
 
     if (result && result.success) {
+      // Close modal
       setShowDeleteModal(false);
+
+      // Persist a flag so SignIn can show a one-time success message
+      sessionStorage.setItem('accountDeletedSuccess', 'true');
+
+      // Immediately sign out and redirect away from the app
+      dispatch(signOut());
       navigate('/signin');
     }
   };
 
-  useEffect(() => {
-    if (error && showDeleteModal) {
-      setDeleteError(error);
-    }
-  }, [error, showDeleteModal]);
-
   const openDeleteModal = () => {
     setShowDeleteModal(true);
-    setDeletePassword('');
-    setDeleteError('');
     dispatch(clearError());
   };
 
   const closeDeleteModal = () => {
     setShowDeleteModal(false);
-    setDeletePassword('');
-    setDeleteError('');
   };
 
   const getInitials = () => {
@@ -224,14 +219,6 @@ const Profile = () => {
       <div className="flex-1 overflow-y-auto p-6">
         <div className="max-w-4xl mx-auto space-y-6">
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 py-6">
-
-            {success && (
-              <div className="px-6 mb-6">
-                <div className="p-3 bg-green-50 border border-green-200 text-green-700 rounded-lg text-sm">
-                  {success}
-                </div>
-              </div>
-            )}
 
             {error && (
               <div className="px-6 mb-6">
@@ -419,9 +406,9 @@ const Profile = () => {
                     <Button
                       type="submit"
                       variant="primary"
-                      disabled={loading}
+                      disabled={saving}
                     >
-                      {loading ? (
+                      {saving ? (
                         <span className="flex items-center">
                           <Loading size="sm" className="mr-2" />
                           Saving...
@@ -469,58 +456,17 @@ const Profile = () => {
         size="md"
       >
         <div className="space-y-4">
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-            <div className="flex items-start">
-              <svg
-                className="w-5 h-5 text-red-600 mt-0.5 mr-3 flex-shrink-0"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-                />
-              </svg>
-              <div>
-                <h3 className="text-sm font-medium text-red-800 mb-1">
-                  Warning: This action cannot be undone
-                </h3>
-                <p className="text-sm text-red-700">
-                  This will permanently delete your account and all associated data.
-                  You will need to create a new account to use the platform again.
-                </p>
-              </div>
+          <p className="text-gray-600">
+            Are you sure you want to delete your account? This action <strong className="text-red-600">cannot be undone</strong> and will permanently delete your account and all associated data. You will need to create a new account to use the platform again.
+          </p>
+
+          {error && (
+            <div className="p-3 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">
+              {error}
             </div>
-          </div>
+          )}
 
-          <div>
-            <label htmlFor="deletePassword" className="block text-sm font-medium text-gray-700 mb-2">
-              Enter your password to confirm <span className="text-red-500">*</span>
-            </label>
-            <input
-              type="password"
-              id="deletePassword"
-              value={deletePassword}
-              onChange={(e) => {
-                setDeletePassword(e.target.value);
-                setDeleteError('');
-                dispatch(clearError());
-              }}
-              className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500 ${deleteError ? 'border-red-300' : 'border-gray-300'
-                }`}
-              placeholder="Enter your password"
-              disabled={loading}
-              autoFocus
-            />
-            {deleteError && (
-              <p className="mt-1 text-sm text-red-600">{deleteError}</p>
-            )}
-          </div>
-
-          <div className="flex gap-3 justify-end pt-4">
+          <div className="flex gap-3 justify-end mt-6">
             <Button
               type="button"
               variant="secondary"
@@ -533,7 +479,7 @@ const Profile = () => {
               type="button"
               variant="danger"
               onClick={handleDeleteAccount}
-              disabled={loading || !deletePassword.trim()}
+              disabled={loading}
             >
               {loading ? (
                 <span className="flex items-center">
@@ -541,12 +487,23 @@ const Profile = () => {
                   Deleting...
                 </span>
               ) : (
-                'Delete Account'
+                'Delete'
               )}
             </Button>
           </div>
         </div>
       </Modal>
+
+      {toast.show && (
+        <div className="fixed inset-0 flex items-center justify-center z-[9999] pointer-events-none">
+          <div className="px-6 py-3 rounded-lg shadow-lg flex items-center gap-3 bg-green-50 border border-green-200 text-green-700 pointer-events-auto">
+            <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+            <span className="font-medium">{toast.message}</span>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

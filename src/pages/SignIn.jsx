@@ -18,6 +18,7 @@ const SignIn = () => {
   });
   
   const [formErrors, setFormErrors] = useState({});
+  const [accountDeletedSuccess, setAccountDeletedSuccess] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
 
@@ -40,12 +41,26 @@ const SignIn = () => {
       });
       setRememberMe(true);
     }
-    
-    // Only clear error on component unmount, not on every render
-    return () => {
-      // Clear error only when component unmounts
-    };
-  }, [dispatch]);
+  }, []);
+
+  // Show one-time success message if account was deleted just before redirecting here
+  useEffect(() => {
+    const flag = sessionStorage.getItem('accountDeletedSuccess');
+    if (flag === 'true') {
+      setAccountDeletedSuccess(true);
+      sessionStorage.removeItem('accountDeletedSuccess');
+    }
+  }, []);
+
+  // Auto-hide account deleted success toast after 3 seconds
+  useEffect(() => {
+    if (accountDeletedSuccess) {
+      const timer = setTimeout(() => {
+        setAccountDeletedSuccess(false);
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [accountDeletedSuccess]);
 
   // Auto-dismiss error message after 5 seconds
   useEffect(() => {
@@ -256,6 +271,17 @@ const SignIn = () => {
           </p>
         </div>
       </Card>
+
+      {accountDeletedSuccess && (
+        <div className="fixed inset-0 flex items-center justify-center z-[9999] pointer-events-none">
+          <div className="px-6 py-3 rounded-lg shadow-lg flex items-center gap-3 bg-green-50 border border-green-200 text-green-700 pointer-events-auto">
+            <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+            <span className="font-medium">Account deleted successfully!</span>
+          </div>
+        </div>
+      )}
     </AuthBackground>
   );
 };

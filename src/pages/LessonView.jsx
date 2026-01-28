@@ -71,6 +71,19 @@ const LessonView = memo(() => {
             <div className="mb-4">
                 <h1 className="text-2xl font-bold text-gray-900">{lesson.title}</h1>
                 <p className="text-sm text-gray-500 mt-1">Course: {course.title}</p>
+                {typeof lesson.durationMinutes === 'number' && lesson.durationMinutes > 0 && (
+                    <p className="text-sm text-gray-500 mt-1">
+                        Duration:{' '}
+                        {(() => {
+                            const minutes = lesson.durationMinutes;
+                            const hours = Math.floor(minutes / 60);
+                            const remaining = minutes % 60;
+                            if (hours && remaining) return `${hours}h ${remaining}m`;
+                            if (hours) return `${hours}h`;
+                            return `${remaining}m`;
+                        })()}
+                    </p>
+                )}
             </div>
 
             <Card className="mb-6">

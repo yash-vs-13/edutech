@@ -284,9 +284,9 @@ const MyCourses = memo(() => {
               <select
                 value={selectedCategory}
                 onChange={(e) => setSelectedCategory(e.target.value)}
-                className={`px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent h-[42px] ${selectedCategory ? 'text-gray-900' : 'text-gray-400'}`}
+                className={`px-4 py-2 border border-gray-300 rounded-lg outline-none h-[42px] ${selectedCategory ? 'text-gray-900' : 'text-gray-400'}`}
               >
-                <option value="">All Categories</option>
+                <option value="" disabled hidden className="text-gray-400">All Categories</option>
                 {categories.map((cat) => (
                   <option key={cat} value={cat} className="text-gray-900">{cat}</option>
                 ))}
@@ -295,9 +295,9 @@ const MyCourses = memo(() => {
               <select
                 value={selectedDifficulty}
                 onChange={(e) => setSelectedDifficulty(e.target.value)}
-                className={`px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent h-[42px] ${selectedDifficulty ? 'text-gray-900' : 'text-gray-400'}`}
+                className={`px-4 py-2 border border-gray-300 rounded-lg outline-none h-[42px] ${selectedDifficulty ? 'text-gray-900' : 'text-gray-400'}`}
               >
-                <option value="">All Levels</option>
+                <option value="" disabled hidden className="text-gray-400">All Levels</option>
                 {difficulties.map((diff) => (
                   <option key={diff} value={diff} className="text-gray-900">{diff.charAt(0).toUpperCase() + diff.slice(1)}</option>
                 ))}
@@ -306,9 +306,9 @@ const MyCourses = memo(() => {
               <select
                 value={sortOrder}
                 onChange={(e) => setSortOrder(e.target.value)}
-                className={`px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent h-[42px] ${sortOrder ? 'text-gray-900' : 'text-gray-400'}`}
+                className={`px-4 py-2 border border-gray-300 rounded-lg outline-none h-[42px] ${sortOrder ? 'text-gray-900' : 'text-gray-400'}`}
               >
-                <option value="" disabled hidden>Sort By</option>
+                <option value="" disabled hidden className="text-gray-400">Sort By</option>
                 <option value="a-z" className="text-gray-900">A-Z</option>
                 <option value="z-a" className="text-gray-900">Z-A</option>
               </select>
@@ -358,7 +358,7 @@ const MyCourses = memo(() => {
             size="sm"
             onClick={handleBulkRemoveClick}
           >
-            Remove Course(s)
+            Remove
           </Button>
         </div>
       )}
@@ -448,7 +448,7 @@ const MyCourses = memo(() => {
 
                       <div className="flex-1">
                         {/* Title */}
-                        <h3 className="text-xl font-semibold mb-2 text-gray-900 line-clamp-2">
+                        <h3 className="text-xl font-semibold mb-2 text-gray-900 break-words max-w-[30ch]">
                           {course.title}
                         </h3>
 
@@ -538,7 +538,7 @@ const MyCourses = memo(() => {
                             className="w-4 h-4 text-primary-600 rounded focus:ring-primary-500 cursor-pointer"
                           />
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
+                        <td className="px-6 py-4">
                           <div className="flex items-center">
                             <div className="flex-shrink-0 h-10 w-10">
                               <img
@@ -553,7 +553,7 @@ const MyCourses = memo(() => {
                               />
                             </div>
                             <div className="ml-4">
-                              <div className="text-sm font-medium text-gray-900">{course.title}</div>
+                              <div className="text-sm font-medium text-gray-900 break-words max-w-[20ch]">{course.title}</div>
                               <div className="text-xs text-gray-500">{course.progress.completedLessons} of {course.progress.totalLessons} lessons</div>
                             </div>
                           </div>
@@ -569,8 +569,8 @@ const MyCourses = memo(() => {
                             <span className="text-xs font-medium text-gray-700">{course.progress.progressPercentage}%</span>
                           </div>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">
+                        <td className="px-6 py-4 text-sm text-gray-500">
+                          <span className="px-2 inline-block text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800 break-words">
                             {course.category || 'Uncategorized'}
                           </span>
                         </td>

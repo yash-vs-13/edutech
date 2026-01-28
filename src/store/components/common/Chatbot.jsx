@@ -150,10 +150,14 @@ const Chatbot = memo(() => {
             const foundCourse = courses.find(c => searchTerms.some(term => c.title.toLowerCase().includes(term)));
 
             if (foundCourse && !q.includes('all')) {
-                return `I found a course called "${foundCourse.title}". It's in the ${foundCourse.category} category. Would you like to see more?`;
+                const title = foundCourse.title.length > 30 ? foundCourse.title.substring(0, 30) + '...' : foundCourse.title;
+                return `I found a course called "${title}". It's in the ${foundCourse.category} category. Would you like to see more?`;
             }
 
-            const courseList = courses.map(c => `• ${c.title}`).slice(0, 5).join('\n');
+            const courseList = courses.map(c => {
+                const title = c.title.length > 30 ? c.title.substring(0, 30) + '...' : c.title;
+                return `• ${title}`;
+            }).slice(0, 5).join('\n');
             return `We have ${courses.length} courses. Here are some of them:\n${courseList}${courses.length > 5 ? '\n...and more!' : ''}`;
         }
 
@@ -171,7 +175,10 @@ const Chatbot = memo(() => {
             const enrolledCourseIds = userEnrollments.map(e => e.courseId);
             const enrolledCourseTitles = courses
                 .filter(c => enrolledCourseIds.includes(c.id))
-                .map(c => `• ${c.title}`);
+                .map(c => {
+                    const title = c.title.length > 30 ? c.title.substring(0, 30) + '...' : c.title;
+                    return `• ${title}`;
+                });
 
             return `You are currently enrolled in ${userEnrollments.length} course(s):\n${enrolledCourseTitles.join('\n')}\nKeep up the great progress!`;
         }

@@ -233,25 +233,26 @@ export const forgotPassword = (email) => async (dispatch) => {
 };
 
 export const updateUserProfile = (profileData) => async (dispatch, getState) => {
-  dispatch(setLoading(true));
+  // Avoid toggling global auth.loading here so we don't show a full-page loader
+  // for a simple profile update; the Profile page manages its own saving state.
   dispatch(clearError());
-  
+
   try {
     // Simulate API call - in production, replace with actual API call
     await new Promise(resolve => setTimeout(resolve, 300));
-    
+
     const { auth } = getState();
     const userId = auth.user?.id;
-    
+
     if (!userId) {
       dispatch(setError('User not found'));
       return { success: false };
     }
-    
+
     // Update user in localStorage
     const users = JSON.parse(localStorage.getItem('cms_users') || '[]');
     const userIndex = users.findIndex(u => u.id === userId);
-    
+
     if (userIndex !== -1) {
       // If firstName or lastName is updated, also update the name field
       const updatedData = { ...profileData };
@@ -260,17 +261,17 @@ export const updateUserProfile = (profileData) => async (dispatch, getState) => 
         const lastName = updatedData.lastName || users[userIndex].lastName || '';
         updatedData.name = `${firstName} ${lastName}`.trim();
       }
-      
+
       users[userIndex] = {
         ...users[userIndex],
         ...updatedData,
         updatedAt: new Date().toISOString(),
       };
       localStorage.setItem('cms_users', JSON.stringify(users));
-      
+
       // Update Redux state
       dispatch(updateProfile(updatedData));
-      
+
       return { success: true, message: 'Profile updated successfully' };
     } else {
       dispatch(setError('User not found'));
@@ -279,8 +280,6 @@ export const updateUserProfile = (profileData) => async (dispatch, getState) => 
   } catch (error) {
     dispatch(setError('An error occurred while updating profile'));
     return { success: false };
-  } finally {
-    dispatch(setLoading(false));
   }
 };
 
@@ -338,7 +337,7 @@ export const changePassword = (currentPassword, newPassword) => async (dispatch,
   }
 };
 
-export const deleteAccount = (password) => async (dispatch, getState) => {
+export const deleteAccount = () => async (dispatch, getState) => {
   dispatch(setLoading(true));
   dispatch(clearError());
   
@@ -355,7 +354,7 @@ export const deleteAccount = (password) => async (dispatch, getState) => {
       return { success: false };
     }
     
-    // Verify password
+    // Verify user exists
     const users = JSON.parse(localStorage.getItem('cms_users') || '[]');
     const user = users.find(u => u.id === userId && u.email === userEmail);
     
@@ -364,19 +363,12 @@ export const deleteAccount = (password) => async (dispatch, getState) => {
       return { success: false };
     }
     
-    if (user.password !== password) {
-      dispatch(setError('Password is incorrect'));
-      return { success: false };
-    }
-    
     // Delete user from localStorage
     const updatedUsers = users.filter(u => u.id !== userId);
     localStorage.setItem('cms_users', JSON.stringify(updatedUsers));
     
-    // Sign out the user
-    dispatch(signOut());
-    
-    return { success: true, message: 'Account deleted successfully' };
+    // Let the caller handle sign-out and navigation so it can show a toast first
+    return { success: true, message: 'Account deleted successfully!' };
   } catch (error) {
     dispatch(setError('An error occurred while deleting account'));
     return { success: false };

@@ -18,11 +18,11 @@ const Help = memo(() => {
           </div>
           <div>
             <h3 className="font-medium text-gray-900 mb-1">Phone Support</h3>
-            <p className="text-gray-600">1-800-EDU-TECH</p>
+            <p className="text-gray-600">1-800-234-5678</p>
           </div>
           <div>
             <h3 className="font-medium text-gray-900 mb-1">Business Hours</h3>
-            <p className="text-gray-600">Monday - Friday, 9:00 AM - 6:00 PM EST</p>
+            <p className="text-gray-600">Monday - Friday, 9:00 AM - 6:00 PM IST</p>
           </div>
         </div>
       </Card>
