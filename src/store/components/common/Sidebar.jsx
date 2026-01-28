@@ -142,8 +142,8 @@ const Sidebar = memo(({ isMinimized = false, onToggle }) => {
             <Link
               key={item.path}
               to={item.path}
-              className={`flex items-center transition-all duration-300 ${isMinimized ? 'justify-center p-3' : 'px-4 py-3'
-                } rounded-lg ${active
+              className={`flex items-center ${isMinimized ? 'justify-center p-3' : 'px-4 py-3'
+                } rounded-lg outline-none border-none ring-0 ${active
                   ? 'bg-primary-100 text-primary-700 font-semibold'
                   : 'text-gray-700 hover:bg-gray-100'
                 }`}

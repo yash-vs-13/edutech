@@ -28,7 +28,7 @@ const Users = memo(() => {
   const handleSubmit = (e) => {
     e.preventDefault();
     const updatedUsers = [...users];
-    
+
     if (editingUser) {
       // Update existing user
       const index = updatedUsers.findIndex(u => u.id === editingUser.id);
@@ -54,7 +54,7 @@ const Users = memo(() => {
       updatedUsers.push(newUser);
       saveUsers(updatedUsers);
     }
-    
+
     setIsModalOpen(false);
     setEditingUser(null);
     setFormData({ firstName: '', lastName: '', email: '', phone: '', category: '' });
@@ -80,7 +80,7 @@ const Users = memo(() => {
   };
 
   const sortedUsers = useMemo(() => {
-    return [...users].sort((a, b) => 
+    return [...users].sort((a, b) =>
       new Date(b.createdAt || 0) - new Date(a.createdAt || 0)
     );
   }, [users]);
@@ -149,11 +149,10 @@ const Users = memo(() => {
                   <p className="text-sm text-gray-600">{user.email}</p>
                   {user.phone && <p className="text-sm text-gray-600">{user.phone}</p>}
                   <div className="mt-2">
-                    <span className={`inline-block px-2 py-1 text-xs font-semibold rounded-full ${
-                      user.category === 'employed' 
-                        ? 'bg-blue-100 text-blue-700' 
+                    <span className={`inline-block px-2 py-1 text-xs font-semibold rounded-full ${user.category === 'employed'
+                        ? 'bg-blue-100 text-blue-700'
                         : 'bg-green-100 text-green-700'
-                    }`}>
+                      }`}>
                       {user.category ? user.category.charAt(0).toUpperCase() + user.category.slice(1) : 'Student'}
                     </span>
                   </div>

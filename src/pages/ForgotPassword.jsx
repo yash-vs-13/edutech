@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { forgotPassword, clearError } from '../store/slices/authSlice';
 import Button from '../store/components/common/Button';
 import Card from '../store/components/common/Card';
@@ -10,8 +10,10 @@ import AuthBackground from '../components/AuthBackground';
 const ForgotPassword = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
+  const fromProfile = location.state?.from === '/profile';
   const { loading, error } = useSelector((state) => state.auth);
-  
+
   const [email, setEmail] = useState('');
   const [emailError, setEmailError] = useState('');
   const [step, setStep] = useState(1); // 1: email, 2: OTP, 3: new password
@@ -75,7 +77,7 @@ const ForgotPassword = () => {
 
   const handleEmailSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (validate()) {
       const result = await dispatch(forgotPassword(email));
       if (result && result.success) {
@@ -86,7 +88,7 @@ const ForgotPassword = () => {
 
   const handleOtpSubmit = (e) => {
     e.preventDefault();
-    
+
     if (otp.trim() === '0000') {
       setOtpError('');
       setStep(3); // Move to password change step
@@ -97,7 +99,7 @@ const ForgotPassword = () => {
 
   const validateNewPassword = () => {
     let isValid = true;
-    
+
     if (!newPassword) {
       setPasswordError('New password is required');
       isValid = false;
@@ -112,7 +114,7 @@ const ForgotPassword = () => {
       const hasLowerCase = /[a-z]/.test(newPassword);
       const hasNumeric = /[0-9]/.test(newPassword);
       const hasSpecialChar = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(newPassword);
-      
+
       if (!hasUpperCase || !hasLowerCase || !hasNumeric || !hasSpecialChar) {
         setPasswordError('Password must contain at least 1 uppercase, 1 lowercase, 1 numeric, and 1 special character');
         isValid = false;
@@ -120,7 +122,7 @@ const ForgotPassword = () => {
         setPasswordError('');
       }
     }
-    
+
     if (!confirmPassword) {
       setConfirmPasswordError('Please confirm your password');
       isValid = false;
@@ -130,18 +132,18 @@ const ForgotPassword = () => {
     } else {
       setConfirmPasswordError('');
     }
-    
+
     return isValid;
   };
 
   const handlePasswordSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (validateNewPassword()) {
       // Update password in localStorage
       const users = JSON.parse(localStorage.getItem('cms_users') || '[]');
       const userIndex = users.findIndex(u => u.email === email);
-      
+
       if (userIndex !== -1) {
         users[userIndex] = {
           ...users[userIndex],
@@ -210,9 +212,8 @@ const ForgotPassword = () => {
                   name="email"
                   value={email}
                   onChange={handleChange}
-                  className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 ${
-                    emailError ? 'border-red-300' : 'border-gray-300'
-                  }`}
+                  className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 ${emailError ? 'border-red-300' : 'border-gray-300'
+                    }`}
                   placeholder="Enter your email"
                   disabled={loading}
                 />
@@ -240,12 +241,13 @@ const ForgotPassword = () => {
             </form>
 
             <div className="mt-6 text-center">
-              <Link
-                to="/signin"
-                className="text-sm text-primary-600 hover:text-primary-700 font-medium"
+              <button
+                type="button"
+                onClick={() => fromProfile ? navigate('/profile') : navigate('/signin')}
+                className="text-sm text-primary-600 hover:text-primary-700 font-medium bg-transparent border-none cursor-pointer outline-none"
               >
-                Back to Sign In
-              </Link>
+                {fromProfile ? 'Back to Profile' : 'Back to Sign In'}
+              </button>
             </div>
           </>
         ) : step === 2 ? (
@@ -264,9 +266,8 @@ const ForgotPassword = () => {
                   setOtpError('');
                 }}
                 maxLength={4}
-                className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-center text-2xl tracking-widest ${
-                  otpError ? 'border-red-300' : 'border-gray-300'
-                }`}
+                className={`w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 text-center text-2xl tracking-widest ${otpError ? 'border-red-300' : 'border-gray-300'
+                  }`}
                 placeholder="0000"
                 disabled={loading}
               />
@@ -316,9 +317,8 @@ const ForgotPassword = () => {
                     setPasswordError('');
                   }}
                   maxLength={50}
-                  className={`w-full px-4 py-2 pr-10 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 ${
-                    passwordError ? 'border-red-300' : 'border-gray-300'
-                  }`}
+                  className={`w-full px-4 py-2 pr-10 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 ${passwordError ? 'border-red-300' : 'border-gray-300'
+                    }`}
                   placeholder="Enter your new password"
                   disabled={loading}
                 />
@@ -330,8 +330,8 @@ const ForgotPassword = () => {
                 >
                   {showNewPassword ? (
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
-                  </svg>
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                    </svg>
                   ) : (
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -360,9 +360,8 @@ const ForgotPassword = () => {
                     setConfirmPasswordError('');
                   }}
                   maxLength={50}
-                  className={`w-full px-4 py-2 pr-10 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 ${
-                    confirmPasswordError ? 'border-red-300' : 'border-gray-300'
-                  }`}
+                  className={`w-full px-4 py-2 pr-10 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 ${confirmPasswordError ? 'border-red-300' : 'border-gray-300'
+                    }`}
                   placeholder="Confirm your new password"
                   disabled={loading}
                 />
@@ -374,8 +373,8 @@ const ForgotPassword = () => {
                 >
                   {showConfirmPassword ? (
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
-                  </svg>
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                    </svg>
                   ) : (
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />

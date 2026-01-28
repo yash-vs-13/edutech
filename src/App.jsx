@@ -22,12 +22,11 @@ const Help = lazy(() => import('./pages/Help'));
 const FAQ = lazy(() => import('./pages/FAQ'));
 
 // Component to redirect authenticated users away from auth pages
-const PublicRoute = memo(({ children }) => {
+const PublicRoute = memo(({ children, allowAuth = false }) => {
   const { isAuthenticated } = useSelector((state) => state.auth);
 
-  // Only redirect if authenticated, don't show loader during form submission
-  // The loader will be shown in the form buttons instead
-  if (isAuthenticated) {
+  // Only redirect if authenticated and auth is not allowed for this route
+  if (isAuthenticated && !allowAuth) {
     return <Navigate to="/" replace />;
   }
 
@@ -66,7 +65,7 @@ const App = memo(() => {
           <Route
             path="/forgot-password"
             element={
-              <PublicRoute>
+              <PublicRoute allowAuth={true}>
                 <Suspense fallback={<Loading size="lg" fullPage={true} />}>
                   <ForgotPassword />
                 </Suspense>
