@@ -152,9 +152,11 @@ const ForgotPassword = () => {
         };
         localStorage.setItem('cms_users', JSON.stringify(users));
         setSuccess(true);
-        // Redirect to sign in after 3 seconds
+        // Redirect after 3 seconds:
+        // - If user came from Profile "Change Password", go back to Profile
+        // - Otherwise, go to Sign In
         setTimeout(() => {
-          navigate('/signin');
+          navigate(fromProfile ? '/profile' : '/signin');
         }, 3000);
       } else {
         dispatch(setError('User not found'));

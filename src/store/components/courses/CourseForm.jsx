@@ -22,12 +22,16 @@ const CourseForm = memo(({ course, onSubmit, onCancel }) => {
   const [uploadedFile, setUploadedFile] = useState(null);
 
   const categories = [
-    'Software Development',
-    'Business Analysis',
-    'Artificial Intelligence',
-    'Software Testing',
-    'Software Design',
-    'Project Management',
+    'Web Development',
+    'Mobile Development',
+    'Data Science',
+    'Machine Learning',
+    'Design',
+    'Business',
+    'Marketing',
+    'Photography',
+    'Music',
+    'Other',
   ];
 
   const difficulties = [
@@ -711,18 +715,18 @@ const CourseForm = memo(({ course, onSubmit, onCancel }) => {
                                 e.target.value ? parseInt(e.target.value, 10) : null
                               )
                             }
-                            className={`w-full px-3 py-2 border border-gray-300 rounded-lg outline-none ${lesson.durationMinutes ? 'text-gray-900' : 'text-gray-400'}`}
+                            className="w-full px-3 py-2 border border-gray-300 rounded-lg outline-none"
                           >
-                            <option value="" disabled hidden>Select duration</option>
-                            <option value="5" className="text-gray-900">5 minutes</option>
-                            <option value="10" className="text-gray-900">10 minutes</option>
-                            <option value="15" className="text-gray-900">15 minutes</option>
-                            <option value="20" className="text-gray-900">20 minutes</option>
-                            <option value="30" className="text-gray-900">30 minutes</option>
-                            <option value="45" className="text-gray-900">45 minutes</option>
-                            <option value="60" className="text-gray-900">60 minutes</option>
-                            <option value="90" className="text-gray-900">90 minutes</option>
-                            <option value="120" className="text-gray-900">120 minutes</option>
+                            <option value="">Select duration</option>
+                            <option value="5">5 minutes</option>
+                            <option value="10">10 minutes</option>
+                            <option value="15">15 minutes</option>
+                            <option value="20">20 minutes</option>
+                            <option value="30">30 minutes</option>
+                            <option value="45">45 minutes</option>
+                            <option value="60">60 minutes</option>
+                            <option value="90">90 minutes</option>
+                            <option value="120">120 minutes</option>
                           </select>
                           <p className="text-xs text-gray-500">
                             This helps learners understand how long this lesson will take.

@@ -1,4 +1,5 @@
 import React, { memo, useEffect } from 'react';
+import Button from './Button';
 
 const Modal = memo(({ isOpen, onClose, title, children, size = 'md' }) => {
   useEffect(() => {

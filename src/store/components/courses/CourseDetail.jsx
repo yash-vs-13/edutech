@@ -101,11 +101,17 @@ const CourseDetail = memo(() => {
       return;
     }
 
+    let url = null;
     if (selectedLesson.file instanceof File || selectedLesson.file instanceof Blob) {
-      const url = URL.createObjectURL(selectedLesson.file);
+      url = URL.createObjectURL(selectedLesson.file);
       setSelectedLessonFileUrl(url);
-      return () => URL.revokeObjectURL(url);
     }
+
+    return () => {
+      if (url) {
+        URL.revokeObjectURL(url);
+      }
+    };
   }, [selectedLesson?.file]);
 
   if (!course) {
@@ -260,10 +266,12 @@ const CourseDetail = memo(() => {
                       return (
                         <div
                           key={lessonId}
-                          onClick={() => handleLessonClick(lesson)}
-                          className={`flex items-center p-4 rounded-lg border-2 transition-colors cursor-pointer ${isCompleted
+                          onClick={showProgressControls ? () => handleLessonClick(lesson) : undefined}
+                          className={`flex items-center p-4 rounded-lg border-2 transition-colors ${showProgressControls ? 'cursor-pointer' : 'cursor-default'} ${isCompleted
                             ? 'bg-green-50 border-green-200'
-                            : 'bg-gray-50 border-gray-200 hover:border-primary-300'
+                            : showProgressControls 
+                              ? 'bg-gray-50 border-gray-200 hover:border-primary-300'
+                              : 'bg-gray-50 border-gray-200'
                             }`}
                         >
                           <div className="flex items-center flex-1">
@@ -302,14 +310,6 @@ const CourseDetail = memo(() => {
                                   })()}
                                 </p>
                               )}
-                              {lesson.content && (
-                                <div
-                                  className="text-sm text-gray-600 mt-2 line-clamp-2"
-                                  dangerouslySetInnerHTML={{
-                                    __html: sanitizeHtml(lesson.content).substring(0, 150) + '...',
-                                  }}
-                                />
-                              )}
                             </div>
                           </div>
                           {isCompleted && (
@@ -347,59 +347,145 @@ const CourseDetail = memo(() => {
 
             {showProgressControls && selectedLesson.file && (
               <div className="border-t pt-4">
-                <h4 className="font-medium text-gray-900 mb-2">Attached File</h4>
+                <div className="flex items-center justify-between mb-2">
+                  <h4 className="font-medium text-gray-900">Attached File</h4>
+                  {selectedLessonFileUrl && (
+                    <div className="flex gap-2">
+                      <a
+                        href={selectedLessonFileUrl}
+                        download={(() => {
+                          if (selectedLesson.file.name) {
+                            return selectedLesson.file.name;
+                          }
+                          if (typeof selectedLesson.file === 'string') {
+                            const urlParts = selectedLesson.file.split('/');
+                            return urlParts[urlParts.length - 1].split('?')[0] || 'file';
+                          }
+                          return 'file';
+                        })()}
+                        className="px-3 py-1.5 text-sm bg-primary-600 border border-transparent rounded-md hover:bg-primary-700 text-white font-medium transition-colors flex items-center gap-1.5"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                        </svg>
+                        Download
+                      </a>
+                      <a
+                        href={selectedLessonFileUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="px-3 py-1.5 text-sm bg-white border border-gray-300 rounded-md hover:bg-gray-50 text-gray-700 font-medium transition-colors flex items-center gap-1.5"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                        </svg>
+                        View
+                      </a>
+                    </div>
+                  )}
+                </div>
                 <div className="flex items-center justify-between p-3 bg-gray-50 rounded border border-gray-200">
-                  <span className="text-sm text-gray-700 truncate">{selectedLesson.file.name || 'Attached File'}</span>
-                  <div className="flex gap-2 ml-4">
-                    {selectedLessonFileUrl && (
-                      <>
-                        <a
-                          href={selectedLessonFileUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="px-2 py-1 text-xs bg-white border border-gray-300 rounded hover:bg-gray-50 text-gray-700 font-medium"
-                        >
-                          View
-                        </a>
-                        <a
-                          href={selectedLessonFileUrl}
-                          download={selectedLesson.file.name || 'file'}
-                          className="px-2 py-1 text-xs bg-primary-600 border border-transparent rounded hover:bg-primary-700 text-white font-medium"
-                        >
-                          Download
-                        </a>
-                      </>
-                    )}
-                  </div>
+                  <span className="text-sm text-gray-700 truncate flex-1 mr-4">
+                    {(() => {
+                      if (selectedLesson.file.name) {
+                        return selectedLesson.file.name;
+                      }
+                      if (typeof selectedLesson.file === 'string') {
+                        const urlParts = selectedLesson.file.split('/');
+                        const fileName = urlParts[urlParts.length - 1].split('?')[0];
+                        return fileName || 'Attached File';
+                      }
+                      return 'Attached File';
+                    })()}
+                  </span>
                 </div>
               </div>
             )}
 
             {showProgressControls && selectedLesson.content && (
               <div className="border-t pt-4">
-                <h4 className="font-medium text-gray-900 mb-2">Content</h4>
+                <div className="flex items-center justify-between mb-2">
+                  <h4 className="font-medium text-gray-900">Content</h4>
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const sanitizedContent = sanitizeHtml(selectedLesson.content);
+                        const htmlContent = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${selectedLesson.title || 'Lesson Content'}</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; line-height: 1.6; }
+        .prose { color: #374151; }
+    </style>
+</head>
+<body>
+    <div class="prose">${sanitizedContent}</div>
+</body>
+</html>`;
+                        const blob = new Blob([htmlContent], { type: 'text/html' });
+                        const url = URL.createObjectURL(blob);
+                        const link = document.createElement('a');
+                        link.href = url;
+                        link.download = `${selectedLesson.title || 'lesson-content'}.html`;
+                        link.click();
+                        setTimeout(() => URL.revokeObjectURL(url), 100);
+                      }}
+                      className="px-3 py-1.5 text-sm bg-primary-600 border border-transparent rounded-md hover:bg-primary-700 text-white font-medium transition-colors flex items-center gap-1.5"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                      </svg>
+                      Download
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const sanitizedContent = sanitizeHtml(selectedLesson.content);
+                        const htmlContent = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>${selectedLesson.title || 'Lesson Content'}</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; line-height: 1.6; }
+        .prose { color: #374151; }
+    </style>
+</head>
+<body>
+    <div class="prose">${sanitizedContent}</div>
+</body>
+</html>`;
+                        const blob = new Blob([htmlContent], { type: 'text/html' });
+                        const url = URL.createObjectURL(blob);
+                        const link = document.createElement('a');
+                        link.href = url;
+                        link.target = '_blank';
+                        link.rel = 'noopener noreferrer';
+                        link.click();
+                        setTimeout(() => URL.revokeObjectURL(url), 100);
+                      }}
+                      className="px-3 py-1.5 text-sm bg-white border border-gray-300 rounded-md hover:bg-gray-50 text-gray-700 font-medium transition-colors flex items-center gap-1.5"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                      </svg>
+                      View
+                    </button>
+                  </div>
+                </div>
                 <div
                   className="prose prose-sm max-w-none"
                   dangerouslySetInnerHTML={{
                     __html: sanitizeHtml(selectedLesson.content),
                   }}
                 />
-              </div>
-            )}
-
-            {showProgressControls && (
-              <div className="border-t pt-4 flex justify-end">
-                <a
-                  href={`/courses/${id}/lessons/${selectedLesson.id}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
-                >
-                  Open in New Tab
-                  <svg className="ml-2 -mr-1 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                  </svg>
-                </a>
               </div>
             )}
           </div>

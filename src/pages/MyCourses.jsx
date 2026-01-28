@@ -250,7 +250,7 @@ const MyCourses = memo(() => {
                 <input
                   type="text"
                   placeholder="Search by title..."
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white h-[42px]"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-white h-[42px] focus:outline-none focus:border-gray-300 focus:ring-0"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />

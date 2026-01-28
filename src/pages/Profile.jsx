@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { updateUserProfile, deleteAccount, clearError, signOut } from '../store/slices/authSlice';
 import Button from '../store/components/common/Button';
+import Card from '../store/components/common/Card';
 import Loading from '../store/components/common/Loading';
 import Modal from '../store/components/common/Modal';
 

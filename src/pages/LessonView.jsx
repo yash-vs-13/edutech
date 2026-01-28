@@ -46,11 +46,17 @@ const LessonView = memo(() => {
             return;
         }
 
+        let url = null;
         if (lesson.file instanceof File || lesson.file instanceof Blob) {
-            const url = URL.createObjectURL(lesson.file);
+            url = URL.createObjectURL(lesson.file);
             setFileUrl(url);
-            return () => URL.revokeObjectURL(url);
         }
+
+        return () => {
+            if (url) {
+                URL.revokeObjectURL(url);
+            }
+        };
     }, [lesson?.file]);
 
     if (!course || !lesson) {
