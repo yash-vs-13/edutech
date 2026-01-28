@@ -392,19 +392,23 @@ const SignUp = () => {
                 />
                 <label htmlFor="termsAccepted" className="ml-2 text-sm text-gray-700">
                   I agree to the{' '}
-                  <Link
-                    to="/terms"
+                  <a
+                    href="/terms"
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="text-primary-600 hover:text-primary-700 underline font-medium"
                   >
                     Terms of Service
-                  </Link>
+                  </a>
                   {' '}and{' '}
-                  <Link
-                    to="/privacy-policy"
+                  <a
+                    href="/privacy-policy"
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="text-primary-600 hover:text-primary-700 underline font-medium"
                   >
                     Privacy Policy
-                  </Link>
+                  </a>
                 </label>
               </div>
               {formErrors.termsAccepted && (
