@@ -15,6 +15,7 @@ const MyCourses = memo(() => {
 
   const [courseToRemove, setCourseToRemove] = useState(null);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
 
   // Filter and sort state
   const [searchQuery, setSearchQuery] = useState('');
@@ -214,6 +215,8 @@ const MyCourses = memo(() => {
     dispatch(deleteEnrollments(enrollmentIdsToRemove));
     setSelectedCourses(new Set());
     setShowBulkRemoveModal(false);
+    setToast({ show: true, message: selectedCourses.size === 1 ? 'Course removed successfully!' : `${selectedCourses.size} courses removed successfully!`, type: 'success' });
+    setTimeout(() => setToast({ show: false, message: '', type: 'success' }), 3000);
   };
 
   const handleRemoveClick = (course) => {
@@ -226,6 +229,8 @@ const MyCourses = memo(() => {
       dispatch(deleteEnrollment(courseToRemove.enrollment.id));
       setShowConfirmModal(false);
       setCourseToRemove(null);
+      setToast({ show: true, message: 'Course removed successfully!', type: 'success' });
+      setTimeout(() => setToast({ show: false, message: '', type: 'success' }), 3000);
     }
   };
 
@@ -660,6 +665,18 @@ const MyCourses = memo(() => {
           </div>
         </div>
       </Modal>
+
+      {/* Success Toast */}
+      {toast.show && (
+        <div className="fixed inset-0 flex items-center justify-center z-[9999] pointer-events-none">
+          <div className="px-6 py-3 rounded-lg shadow-lg flex items-center gap-3 bg-green-50 border border-green-200 text-green-700 pointer-events-auto">
+            <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+            <span className="font-medium">{toast.message}</span>
+          </div>
+        </div>
+      )}
     </div>
   );
 });

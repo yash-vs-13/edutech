@@ -23,6 +23,7 @@ const CourseDetail = memo(() => {
   const enrollments = useSelector((state) => state.enrollments?.enrollments || []);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
   const course = (courses && Array.isArray(courses)) ? courses.find((c) => c.id === id) : null;
 
   // Get enrollment and progress for this course
@@ -33,8 +34,12 @@ const CourseDetail = memo(() => {
   const progress = enrollment?.progress || { completedLessons: [] };
   const completedLessons = progress.completedLessons || [];
 
-  // Show progress controls only if enrolled AND not coming explicitly from "All Courses" view
+  // Show progress controls only if enrolled AND not coming from "All Courses" view
+  // When coming from All Courses, never show progress controls regardless of enrollment status
   const showProgressControls = enrollment && location.state?.from !== '/courses';
+  
+  // When coming from All Courses, always treat as not enrolled for display purposes
+  const isFromAllCourses = location.state?.from === '/courses';
 
   // Calculate total lessons and progress
   const totalLessons = useMemo(() => {
@@ -82,11 +87,15 @@ const CourseDetail = memo(() => {
   const handleEditSubmit = (formData) => {
     dispatch(updateCourse({ id: course.id, ...formData }));
     setIsEditModalOpen(false);
+    setToast({ show: true, message: 'Course updated successfully!', type: 'success' });
+    setTimeout(() => setToast({ show: false, message: '', type: 'success' }), 3000);
   };
 
   const handleDeleteConfirm = () => {
     dispatch(deleteCourse(course.id));
     setShowDeleteConfirm(false);
+    // Store success message flag for Courses page to display
+    sessionStorage.setItem('courseDeletedSuccess', 'true');
     navigate('/courses');
   };
 
@@ -136,16 +145,17 @@ const CourseDetail = memo(() => {
             if (location.state?.from) {
               navigate(location.state.from);
             } else {
-              navigate(enrollment ? '/my-courses' : '/courses');
+              // If coming from All Courses, always go back to courses, not my-courses
+              navigate(isFromAllCourses ? '/courses' : (enrollment ? '/my-courses' : '/courses'));
             }
           }}
           className=""
         >
-          ← {location.state?.from === '/courses'
+          ← {isFromAllCourses
             ? 'Back to Courses'
             : location.state?.from === '/my-courses'
               ? 'Back to My Courses'
-              : enrollment
+              : enrollment && !isFromAllCourses
                 ? 'Back to My Courses'
                 : 'Back to Courses'}
         </Button>
@@ -261,7 +271,9 @@ const CourseDetail = memo(() => {
                   <div className="space-y-3 ml-4">
                     {section.lessons.map((lesson, lessonIndex) => {
                       const lessonId = lesson.id || `${course.id}-${sectionIndex}-${lessonIndex}`;
-                      const isCompleted = completedLessons.includes(lessonId);
+                      // Only show as completed if progress controls are enabled (My Courses view)
+                      // When viewing from All Courses, never show completion status
+                      const isCompleted = showProgressControls && completedLessons.includes(lessonId);
 
                       return (
                         <div
@@ -533,6 +545,18 @@ const CourseDetail = memo(() => {
           </div>
         </div>
       </Modal>
+
+      {/* Success Toast */}
+      {toast.show && (
+        <div className="fixed inset-0 flex items-center justify-center z-[9999] pointer-events-none">
+          <div className="px-6 py-3 rounded-lg shadow-lg flex items-center gap-3 bg-green-50 border border-green-200 text-green-700 pointer-events-auto">
+            <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+            </svg>
+            <span className="font-medium">{toast.message}</span>
+          </div>
+        </div>
+      )}
     </div>
   );
 });

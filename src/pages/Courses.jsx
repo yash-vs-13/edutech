@@ -1,4 +1,4 @@
-import React, { memo, useState, lazy, Suspense } from 'react';
+import React, { memo, useState, useEffect, lazy, Suspense } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { addCourse, updateCourse } from '../store/slices/courseSlice';
 import CourseList from '../store/components/courses/CourseList';
@@ -13,6 +13,16 @@ const Courses = memo(() => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingCourse, setEditingCourse] = useState(null);
   const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
+
+  // Check for course deleted success message from CourseDetail page
+  useEffect(() => {
+    const flag = sessionStorage.getItem('courseDeletedSuccess');
+    if (flag === 'true') {
+      setToast({ show: true, message: 'Course deleted successfully!', type: 'success' });
+      sessionStorage.removeItem('courseDeletedSuccess');
+      setTimeout(() => setToast({ show: false, message: '', type: 'success' }), 3000);
+    }
+  }, []);
 
   const handleSubmit = (formData) => {
     if (editingCourse) {
@@ -79,8 +89,8 @@ const Courses = memo(() => {
       </Modal>
 
       {toast.show && (
-        <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50">
-          <div className="px-6 py-3 rounded-lg shadow-lg flex items-center gap-3 bg-green-50 border border-green-200 text-green-700 animate-slide-in">
+        <div className="fixed inset-0 flex items-center justify-center z-[9999] pointer-events-none">
+          <div className="px-6 py-3 rounded-lg shadow-lg flex items-center gap-3 bg-green-50 border border-green-200 text-green-700 pointer-events-auto">
             <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
             </svg>
