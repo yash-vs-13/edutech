@@ -286,7 +286,7 @@ const Chatbot = memo(() => {
         <div className="fixed bottom-6 right-6 z-[10000] transition-all duration-300 ease-in-out">
             {/* Chat Window */}
             {isOpen && (
-                <div className="absolute bottom-20 right-0 w-[90vw] sm:w-[380px] h-[500px] bg-white rounded-2xl shadow-2xl border border-gray-100 flex flex-col overflow-hidden animate-in slide-in-from-bottom-5 duration-300">
+                <div className="absolute bottom-20 right-0 w-[85vw] sm:w-[340px] md:w-[360px] lg:w-[380px] max-w-sm h-[400px] md:h-[460px] max-h-[70vh] bg-white rounded-2xl shadow-2xl border border-gray-100 flex flex-col overflow-hidden animate-in slide-in-from-bottom-5 duration-300">
                     {/* Header */}
                     <div className="bg-primary-600 p-4 flex items-center justify-between">
                         <div className="flex items-center gap-3">
