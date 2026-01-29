@@ -53,9 +53,9 @@ Defined in `package.json`:
   - Enroll/unenroll
   - My Courses list with filtering/search and progress display
 - **Lessons**:
-  - Lesson details pop-up (from My Courses course details)
-  - Attached file: View / Download (where supported)
-  - Content: View / Download as HTML (where supported)
+  - Lesson details pop-up (from course details)
+  - Attached file: View only (no Download in pop-up)
+  - Content: shown only when the lesson has actual text (empty/whitespace content is hidden); View only (no Download as HTML)
 
 ## Routing overview
 
@@ -102,6 +102,15 @@ src/
     index.js               Redux store setup
   utils/                   Helpers (sanitize, localstorage persistence)
 ```
+
+## Recent flow-related changes
+
+- **Course create/update form (lesson files)**  
+  Lesson file selection is kept in memory only: `File` objects are stripped before persisting courses to localStorage, so after a refresh or re-opening a course for edit, the "Lesson file" section will show no selected file. The form only displays "Selected: …" when a real file is present (avoids "Selected: undefined" from stale data).
+
+- **Lesson details pop-up**  
+  - The **Content** block (heading + View + prose) is shown only when the lesson has visible text; content that is empty or only tags/whitespace (e.g. `<p><br></p>`) does not show this section.  
+  - **Download** has been removed: attached files and lesson content support **View** only (no Download link/button in the pop-up).
 
 ## Notes on “Change Password” flow
 

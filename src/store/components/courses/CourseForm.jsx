@@ -673,7 +673,7 @@ const CourseForm = memo(({ course, onSubmit, onCancel }) => {
                           <p className="text-xs text-gray-500">
                             Supported formats: PDF, DOC, DOCX, PPT, PPTX, XLS, XLSX, TXT, ZIP, MP4, MP3
                           </p>
-                          {lesson.file && (
+                          {lesson.file && (lesson.file instanceof File || typeof lesson.file?.name === 'string') && (
                             <div className="flex items-center justify-between mt-2 p-2 bg-gray-50 rounded-lg border border-gray-300">
                               <p className="text-xs text-gray-700 flex-1 truncate">
                                 Selected: {lesson.file.name}

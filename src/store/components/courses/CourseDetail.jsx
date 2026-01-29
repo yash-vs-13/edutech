@@ -84,6 +84,13 @@ const CourseDetail = memo(() => {
     setSelectedLesson(null);
   };
 
+  /** True when HTML string has actual text (not just tags/whitespace like <p><br></p>). */
+  const hasVisibleContent = (html) => {
+    if (!html || typeof html !== 'string') return false;
+    const stripped = html.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').trim();
+    return stripped.length > 0;
+  };
+
   const handleEditSubmit = (formData) => {
     dispatch(updateCourse({ id: course.id, ...formData }));
     setIsEditModalOpen(false);
@@ -365,25 +372,6 @@ const CourseDetail = memo(() => {
                     <div className="flex gap-2">
                       <a
                         href={selectedLessonFileUrl}
-                        download={(() => {
-                          if (selectedLesson.file.name) {
-                            return selectedLesson.file.name;
-                          }
-                          if (typeof selectedLesson.file === 'string') {
-                            const urlParts = selectedLesson.file.split('/');
-                            return urlParts[urlParts.length - 1].split('?')[0] || 'file';
-                          }
-                          return 'file';
-                        })()}
-                        className="px-3 py-1.5 text-sm bg-primary-600 border border-transparent rounded-md hover:bg-primary-700 text-white font-medium transition-colors flex items-center gap-1.5"
-                      >
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                        </svg>
-                        Download
-                      </a>
-                      <a
-                        href={selectedLessonFileUrl}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="px-3 py-1.5 text-sm bg-white border border-gray-300 rounded-md hover:bg-gray-50 text-gray-700 font-medium transition-colors flex items-center gap-1.5"
@@ -415,45 +403,11 @@ const CourseDetail = memo(() => {
               </div>
             )}
 
-            {showProgressControls && selectedLesson.content && (
+            {showProgressControls && hasVisibleContent(selectedLesson?.content) && (
               <div className="border-t pt-4">
                 <div className="flex items-center justify-between mb-2">
                   <h4 className="font-medium text-gray-900">Content</h4>
                   <div className="flex gap-2">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const sanitizedContent = sanitizeHtml(selectedLesson.content);
-                        const htmlContent = `<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>${selectedLesson.title || 'Lesson Content'}</title>
-    <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; line-height: 1.6; }
-        .prose { color: #374151; }
-    </style>
-</head>
-<body>
-    <div class="prose">${sanitizedContent}</div>
-</body>
-</html>`;
-                        const blob = new Blob([htmlContent], { type: 'text/html' });
-                        const url = URL.createObjectURL(blob);
-                        const link = document.createElement('a');
-                        link.href = url;
-                        link.download = `${selectedLesson.title || 'lesson-content'}.html`;
-                        link.click();
-                        setTimeout(() => URL.revokeObjectURL(url), 100);
-                      }}
-                      className="px-3 py-1.5 text-sm bg-primary-600 border border-transparent rounded-md hover:bg-primary-700 text-white font-medium transition-colors flex items-center gap-1.5"
-                    >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-                      </svg>
-                      Download
-                    </button>
                     <button
                       type="button"
                       onClick={() => {

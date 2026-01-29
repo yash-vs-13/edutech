@@ -9,6 +9,23 @@ const initialState = loadState(COURSES_STORAGE_KEY) || {
   error: null,
 };
 
+/** Returns a serializable copy of state with lesson.file stripped (File objects cannot be persisted). */
+function getSerializableState(state) {
+  return {
+    ...state,
+    courses: (state.courses || []).map((course) => ({
+      ...course,
+      sections: (course.sections || []).map((section) => ({
+        ...section,
+        lessons: (section.lessons || []).map((lesson) => {
+          const { file, ...lessonWithoutFile } = lesson;
+          return lessonWithoutFile;
+        }),
+      })),
+    })),
+  };
+}
+
 const courseSlice = createSlice({
   name: 'courses',
   initialState,
@@ -27,7 +44,7 @@ const courseSlice = createSlice({
         updatedAt: new Date().toISOString(),
       };
       state.courses.push(newCourse);
-      saveState(COURSES_STORAGE_KEY, state);
+      saveState(COURSES_STORAGE_KEY, getSerializableState(state));
     },
     updateCourse: (state, action) => {
       const { id, ...updates } = action.payload;
@@ -38,21 +55,21 @@ const courseSlice = createSlice({
           ...updates,
           updatedAt: new Date().toISOString(),
         };
-        saveState(COURSES_STORAGE_KEY, state);
+        saveState(COURSES_STORAGE_KEY, getSerializableState(state));
       }
     },
     deleteCourse: (state, action) => {
       state.courses = state.courses.filter(course => course.id !== action.payload);
-      saveState(COURSES_STORAGE_KEY, state);
+      saveState(COURSES_STORAGE_KEY, getSerializableState(state));
     },
     deleteCourses: (state, action) => {
       const idsToDelete = Array.isArray(action.payload) ? action.payload : [action.payload];
       state.courses = state.courses.filter(course => !idsToDelete.includes(course.id));
-      saveState(COURSES_STORAGE_KEY, state);
+      saveState(COURSES_STORAGE_KEY, getSerializableState(state));
     },
     setCourses: (state, action) => {
       state.courses = action.payload;
-      saveState(COURSES_STORAGE_KEY, state);
+      saveState(COURSES_STORAGE_KEY, getSerializableState(state));
     },
   },
 });
